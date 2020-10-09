@@ -26,7 +26,7 @@ exports.getSpecificCourse = (request, response) => {
                 return response.status(404).json({ error: 'No such course' })
 			}
 			data = ({
-				CourseId: doc.id,
+				CourseID: doc.id,
 				Name: doc.data().Name,
 				Content: doc.data().Content,
 				Instructor: doc.data().Instructor,
@@ -58,7 +58,7 @@ exports.getAllCourse = (request, response) => {
 			let Course = [];
 			data.forEach((doc) => {
 				Course.push({
-                    CourseId: doc.id,
+                    CourseID: doc.id,
 					Name: doc.data().Name,
 					Content: doc.data().Content,
 					Instructor: doc.data().Instructor,
@@ -104,30 +104,54 @@ exports.CreateCourse = (request, response) =>{
 	}
 	if(request.body.TELElink.trim() === "") {
         return response.status(400).json({ TELElink: 'Must not be empty' });
-    }
-	const newCourseItem = {
+	}
+
+	const newCourseItem =  {
         Name: request.body.Name,
 		Content: request.body.Content,
 		Instructor: request.body.Instructor,
-		CourseID: request.body.CourseID,
 		StartD: request.body.StartD,
 		EndD: request.body.EndD,
 		sizeC: request.body.sizeC,
 		TELElink: request.body.TELElink,
-        createdAt: new Date().toISOString()
+		createdAt: new Date().toISOString(),
+		CourseID: request.body.CourseID
 	}
-	db
-	.collection('Course')
-	.add(newCourseItem)
-	.then((doc)=>{
+	var k = db.collection('Course').doc(request.body.CourseID);
+	k.set({
+        Name: request.body.Name,
+		Content: request.body.Content,
+		Instructor: request.body.Instructor,
+		StartD: request.body.StartD,
+		EndD: request.body.EndD,
+		sizeC: request.body.sizeC,
+		TELElink: request.body.TELElink,
+		createdAt: new Date().toISOString(),
+		CourseID: request.body.CourseID
+	}).then((doc)=>{
+		doc.id = request.body.CourseID;
 		const responseCItem = newCourseItem;
-		responseCItem.id = doc.id;
+		responseCItem.id = request.body.CourseID;
 		return response.json(responseCItem);
 	})
 	.catch((err) => {
 		response.status(500).json({ error: 'Something went wrong' });
 		console.error(err);
 	});
+	// return response.json(newCourseItem);
+	// db
+	// .collection('Course')
+	// .add(newCourseItem)
+	// .then((doc)=>{
+	// 	doc.id = request.body.CourseID;
+	// 	const responseCItem = newCourseItem;
+	// 	responseCItem.id = request.body.CourseID;
+	// 	return response.json(responseCItem);
+	// })
+	// .catch((err) => {
+	// 	response.status(500).json({ error: 'Something went wrong' });
+	// 	console.error(err);
+	// });
 };
 
 ///// ref
